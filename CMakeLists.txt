@@ -1,105 +1,83 @@
 add_definitions(-DSTATICLIB)
 
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} ../version)
+file(GLOB_RECURSE BlockchainExplorer BlockchainExplorer/*)
+file(GLOB_RECURSE Common Common/*)
+file(GLOB_RECURSE ConnectivityTool ConnectivityTool/*)
+file(GLOB_RECURSE Crypto crypto/*)
+file(GLOB_RECURSE CryptoNoteCore CryptoNoteCore/* CryptoNoteConfig.h)
+file(GLOB_RECURSE CryptoNoteProtocol CryptoNoteProtocol/*)
+file(GLOB_RECURSE Daemon Daemon/*)
+file(GLOB_RECURSE Http HTTP/*)
+file(GLOB_RECURSE InProcessNode InProcessNode/*)
+file(GLOB_RECURSE Logging Logging/*)
+file(GLOB_RECURSE NodeRpcProxy NodeRpcProxy/*)
+file(GLOB_RECURSE P2p P2p/*)
+file(GLOB_RECURSE Rpc Rpc/*)
+file(GLOB_RECURSE Serialization Serialization/*)
+file(GLOB_RECURSE SimpleWallet SimpleWallet/*)
+if(MSVC)
+file(GLOB_RECURSE System System/* Platform/Windows/System/*)
+elseif(APPLE)
+file(GLOB_RECURSE System System/* Platform/OSX/System/*)
+else()
+file(GLOB_RECURSE System System/* Platform/Linux/System/*)
+endif()
+file(GLOB_RECURSE Transfers Transfers/*)
+file(GLOB_RECURSE Wallet Wallet/*)
+file(GLOB_RECURSE WalletLegacy WalletLegacy/*)
 
-file(GLOB_RECURSE CoreTests CoreTests/*)
-file(GLOB_RECURSE CryptoTests crypto/*)
-file(GLOB_RECURSE FunctionalTests FunctionalTests/*)
-file(GLOB_RECURSE IntegrationTestLibrary IntegrationTestLib/*)
-file(GLOB_RECURSE IntegrationTests IntegrationTests/*)
-file(GLOB_RECURSE NodeRpcProxyTests NodeRpcProxyTests/*)
-file(GLOB_RECURSE PerformanceTests PerformanceTests/*)
-file(GLOB_RECURSE SystemTests System/*)
-file(GLOB_RECURSE TestGenerator TestGenerator/*)
-file(GLOB_RECURSE TransfersTests TransfersTests/*)
-file(GLOB_RECURSE UnitTests UnitTests/*)
+file(GLOB_RECURSE JsonRpcServer JsonRpcServer/*)
 
-file(GLOB_RECURSE CryptoNoteProtocol ../src/CryptoNoteProtocol/*)
-file(GLOB_RECURSE P2p ../src/P2p/*)
+file(GLOB_RECURSE PaymentGate PaymentGate/*)
+file(GLOB_RECURSE PaymentGateService PaymentGateService/*)
+file(GLOB_RECURSE Miner Miner/*)
 
-source_group("" FILES ${CoreTests} ${CryptoTests} ${FunctionalTests} ${IntegrationTestLibrary} ${IntegrationTests} ${NodeRpcProxyTests} ${PerformanceTests} ${SystemTests} ${TestGenerator} ${TransfersTests} ${UnitTests})
-source_group("" FILES ${CryptoNoteProtocol} ${P2p})
+source_group("" FILES $${Common} ${ConnectivityTool} ${Crypto} ${CryptoNoteCore} ${CryptoNoteProtocol} ${Daemon} ${JsonRpcServer} ${Http} ${Logging} ${NodeRpcProxy} ${P2p} ${Rpc} ${Serialization} ${SimpleWallet} ${System} ${Transfers} ${Wallet} ${WalletLegacy})
 
-add_library(IntegrationTestLibrary ${IntegrationTestLibrary})
-add_library(TestGenerator ${TestGenerator})
+add_library(BlockchainExplorer ${BlockchainExplorer})
+add_library(Common ${Common})
+add_library(Crypto ${Crypto})
+add_library(CryptoNoteCore ${CryptoNoteCore})
+add_library(Http ${Http})
+add_library(InProcessNode ${InProcessNode})
+add_library(Logging ${Logging})
+add_library(NodeRpcProxy ${NodeRpcProxy})
+add_library(Rpc ${Rpc})
+add_library(P2P ${CryptoNoteProtocol} ${P2p})
+add_library(Serialization ${Serialization})
+add_library(System ${System})
+add_library(Transfers ${Transfers})
+add_library(Wallet ${Wallet} ${WalletLegacy})
+add_library(PaymentGate ${PaymentGate})
+add_library(JsonRpcServer ${JsonRpcServer})
 
-add_executable(CoreTests ${CoreTests})
-add_executable(CryptoTests ${CryptoTests})
-add_executable(IntegrationTests ${IntegrationTests})
-add_executable(NodeRpcProxyTests ${NodeRpcProxyTests})
-add_executable(PerformanceTests ${PerformanceTests})
-add_executable(SystemTests ${SystemTests})
-add_executable(TransfersTests ${TransfersTests})
-add_executable(UnitTests ${UnitTests})
+add_executable(ConnectivityTool ${ConnectivityTool})
+add_executable(Daemon ${Daemon})
+add_executable(SimpleWallet ${SimpleWallet})
+add_executable(PaymentGateService ${PaymentGateService})
+add_executable(Miner ${Miner})
 
-add_executable(DifficultyTests Difficulty/Difficulty.cpp)
-add_executable(HashTargetTests HashTarget.cpp)
-add_executable(HashTests Hash/main.cpp)
-
-target_link_libraries(CoreTests TestGenerator CryptoNoteCore Serialization System Logging Common Crypto BlockchainExplorer ${Boost_LIBRARIES})
-target_link_libraries(IntegrationTests IntegrationTestLibrary Wallet NodeRpcProxy InProcessNode P2P Rpc Http Transfers Serialization System CryptoNoteCore Logging Common Crypto BlockchainExplorer gtest upnpc-static ${Boost_LIBRARIES})
-target_link_libraries(NodeRpcProxyTests NodeRpcProxy CryptoNoteCore Rpc Http Serialization System Logging Common Crypto ${Boost_LIBRARIES})
-target_link_libraries(PerformanceTests CryptoNoteCore Serialization Logging Common Crypto ${Boost_LIBRARIES})
-target_link_libraries(SystemTests System gtest_main)
 if (MSVC)
-  target_link_libraries(SystemTests ws2_32)
-  target_link_libraries(NodeRpcProxyTests ws2_32)
-  target_link_libraries(CoreTests ws2_32)
+  target_link_libraries(System ws2_32)
 endif ()
 
-target_link_libraries(TransfersTests IntegrationTestLibrary Wallet gtest_main InProcessNode NodeRpcProxy P2P Rpc Http BlockchainExplorer CryptoNoteCore Serialization System Logging Transfers Common Crypto upnpc-static ${Boost_LIBRARIES})
-target_link_libraries(UnitTests gtest_main PaymentGate Wallet TestGenerator InProcessNode NodeRpcProxy Rpc Http Transfers Serialization System Logging BlockchainExplorer Common CryptoNoteCore Crypto ${Boost_LIBRARIES})
+set(ConnectivityToolLibs CryptoNoteCore Logging Crypto P2P Rpc Http Serialization Common System ${Boost_LIBRARIES})
+target_link_libraries(ConnectivityTool ${ConnectivityToolLibs})
+target_link_libraries(Daemon CryptoNoteCore P2P Rpc System Http Logging Common Crypto upnpc-static BlockchainExplorer ${Boost_LIBRARIES} Serialization)
+target_link_libraries(SimpleWallet Wallet NodeRpcProxy Transfers Rpc Http CryptoNoteCore System Logging Common Crypto ${Boost_LIBRARIES} Serialization)
+target_link_libraries(PaymentGateService PaymentGate JsonRpcServer Wallet NodeRpcProxy Transfers CryptoNoteCore Crypto P2P Rpc Http System Logging Common InProcessNode upnpc-static BlockchainExplorer ${Boost_LIBRARIES} Serialization)
+target_link_libraries(Miner CryptoNoteCore Rpc System Http Logging Common Crypto ${Boost_LIBRARIES} Serialization)
 
-target_link_libraries(DifficultyTests CryptoNoteCore Serialization Crypto Logging Common ${Boost_LIBRARIES})
-target_link_libraries(HashTargetTests CryptoNoteCore Crypto)
-target_link_libraries(HashTests Crypto)
+add_dependencies(Rpc version)
 
-if(NOT MSVC)
-  set_property(TARGET gtest gtest_main IntegrationTestLibrary IntegrationTests TestGenerator UnitTests SystemTests HashTargetTests TransfersTests APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-sign-compare")
-endif()
+add_dependencies(ConnectivityTool version)
+add_dependencies(Daemon version)
+add_dependencies(SimpleWallet version)
+add_dependencies(PaymentGateService version)
+add_dependencies(P2P version)
 
-add_custom_target(tests DEPENDS CoreTests IntegrationTests NodeRpcProxyTests PerformanceTests SystemTests TransfersTests UnitTests DifficultyTests HashTargetTests)
-
-set_property(TARGET
-  tests
-
-  IntegrationTestLibrary
-  TestGenerator
-
-  CoreTests
-  CryptoTests
-  IntegrationTests
-  NodeRpcProxyTests
-  PerformanceTests
-  SystemTests
-  TransfersTests
-  UnitTests
-
-  DifficultyTests
-  HashTargetTests
-  HashTests
-PROPERTY FOLDER "tests")
-
-add_dependencies(IntegrationTestLibrary version)
-
-set_property(TARGET CoreTests PROPERTY OUTPUT_NAME "core_tests")
-set_property(TARGET CryptoTests PROPERTY OUTPUT_NAME "crypto_tests")
-set_property(TARGET IntegrationTests PROPERTY OUTPUT_NAME "integration_tests")
-set_property(TARGET NodeRpcProxyTests PROPERTY OUTPUT_NAME "node_rpc_proxy_tests")
-set_property(TARGET PerformanceTests PROPERTY OUTPUT_NAME "performance_tests")
-set_property(TARGET SystemTests PROPERTY OUTPUT_NAME "system_tests")
-set_property(TARGET TransfersTests PROPERTY OUTPUT_NAME "transfers_tests")
-set_property(TARGET UnitTests PROPERTY OUTPUT_NAME "unit_tests")
-set_property(TARGET DifficultyTests PROPERTY OUTPUT_NAME "difficulty_tests")
-set_property(TARGET HashTargetTests PROPERTY OUTPUT_NAME "hash_target_tests")
-set_property(TARGET HashTests PROPERTY OUTPUT_NAME "hash_tests")
-
-add_test(CoreTests core_tests --generate_and_play_test_data)
-add_test(CryptoTests crypto_tests ${CMAKE_CURRENT_SOURCE_DIR}/crypto/tests.txt)
-add_test(DifficultyTests difficulty_tests ${CMAKE_CURRENT_SOURCE_DIR}/Difficulty/data.txt)
-foreach(hash IN ITEMS fast slow tree extra-blake extra-groestl extra-jh extra-skein)
-  add_test(hash-${hash} hash_tests ${hash} ${CMAKE_CURRENT_SOURCE_DIR}/Hash/tests-${hash}.txt)
-endforeach(hash)
-add_test(HashTargetTests hash_target_tests)
-add_test(SystemTests system_tests)
-add_test(UnitTests unit_tests)
+set_property(TARGET ConnectivityTool PROPERTY OUTPUT_NAME "mushiconn")
+set_property(TARGET SimpleWallet PROPERTY OUTPUT_NAME "mushiwallet")
+set_property(TARGET PaymentGateService PROPERTY OUTPUT_NAME "mushigate")
+set_property(TARGET Miner PROPERTY OUTPUT_NAME "mushiminer")
+set_property(TARGET Daemon PROPERTY OUTPUT_NAME "cryptoxd")
